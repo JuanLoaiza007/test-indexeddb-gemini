@@ -6,6 +6,7 @@ import {
   actualizarTransaccion,
   eliminarTransaccion,
 } from "@/app/lib/indexedDB";
+import { request_gemini } from "@/app/lib/gemini";
 
 export default function TransaccionesPage() {
   const [transacciones, setTransacciones] = useState([]);
@@ -18,6 +19,8 @@ export default function TransaccionesPage() {
     monto: "",
     fecha: "",
   });
+  const [sugerenciaIA, setSugerenciaIA] = useState("");
+  const [cargandoIA, setCargandoIA] = useState(false);
 
   useEffect(() => {
     cargarTransacciones();
@@ -68,6 +71,20 @@ export default function TransaccionesPage() {
     const transaccion = transacciones.find((t) => t.id === id);
     console.log("✏️ Editando transacción:", transaccion);
     setForm(transaccion);
+  }
+
+  async function obtenerSugerenciaIA() {
+    if (transacciones.length === 0) {
+      alert("No hay transacciones para analizar.");
+      return;
+    }
+
+    setCargandoIA(true);
+    setSugerenciaIA("");
+
+    const respuesta = await request_gemini(transacciones);
+    setSugerenciaIA(respuesta);
+    setCargandoIA(false);
   }
 
   function manejarCambio(e) {
@@ -137,6 +154,7 @@ export default function TransaccionesPage() {
           {form.id ? "Actualizar" : "Agregar"}
         </button>
       </form>
+
       <ul className="space-y-2">
         {transacciones.length === 0 ? (
           <p className="text-gray-500 text-center">
@@ -175,6 +193,23 @@ export default function TransaccionesPage() {
           ))
         )}
       </ul>
+
+      <div className="mt-6">
+        <button
+          onClick={obtenerSugerenciaIA}
+          className="w-full bg-green-500 text-white p-2 rounded"
+        >
+          Obtener sugerencia IA
+        </button>
+        {cargandoIA && (
+          <p className="text-gray-500 text-center mt-2 animate-pulse">
+            Obteniendo sugerencias...
+          </p>
+        )}
+        {sugerenciaIA && (
+          <p className="mt-4 p-4 bg-gray-100 border rounded">{sugerenciaIA}</p>
+        )}
+      </div>
     </div>
   );
 }
