@@ -56,6 +56,11 @@ ${JSON.stringify(transacciones, null, 2)}
 Genera tu respuesta usando el formato definido.  
 `;
 
+const chatSession = model.startChat({
+   generationConfig,
+   history: [],
+});
+
   try {
     const result = await chatSession.sendMessage(prompt);
     const responseText = result.response.text();
