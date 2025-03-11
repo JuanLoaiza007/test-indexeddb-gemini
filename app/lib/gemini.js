@@ -38,24 +38,23 @@ export async function request_gemini(transacciones) {
   localStorage.setItem("ia_request_log", JSON.stringify(recientes));
 
   const prompt = `
-    Eres un analista financiero especializado en el análisis de ingresos y gastos personales. 
-    Tu tarea es revisar la lista de transacciones proporcionada y ofrecer recomendaciones 
-    prácticas para mejorar la gestión del dinero. 
+Eres el asistente de una aplicación de **control y análisis financiero**. Tu tarea es analizar los ingresos y gastos registrados por el usuario y ofrecerle **sugerencias detalladas y relevantes** para mejorar su gestión financiera. 
 
-    Reglas de tu respuesta:
-    - Analiza patrones de gasto y ahorro.
-    - Sugiere formas de optimizar los ingresos y reducir gastos innecesarios.
-    - No hagas suposiciones fuera de los datos dados.
-    - Responde en un solo párrafo con consejos concisos y aplicables.
+### **📌 Reglas de tu respuesta:**
+1. **Usa siempre este formato de salida** para que las respuestas sean consistentes:  
+   - **🔍 Resumen del análisis** (explicación general de los ingresos y gastos).  
+   - **📊 Categorías destacadas** (mencionar las áreas con mayor impacto financiero).  
+   - **💡 Recomendaciones** (consejos prácticos para mejorar el manejo del dinero).  
+2. **Muestra que has analizado las transacciones** mencionando detalles como montos, categorías y tipos de gastos, pero **sin hacer cálculos matemáticos**.  
+3. **No hagas suposiciones fuera de los datos proporcionados**. Solo usa la información dada.  
+4. **Sé breve y claro**, pero lo suficientemente detallado como para que el usuario perciba que entiendes su situación financiera.  
+5. **No uses un tono alarmista**. En su lugar, proporciona consejos **constructivos y realistas**.  
 
-    Aquí está la lista de transacciones:
-    ${JSON.stringify(transacciones, null, 2)}
-  `;
-
-  const chatSession = model.startChat({
-    generationConfig,
-    history: [],
-  });
+### **📂 Datos de la transacción a analizar:**
+${JSON.stringify(transacciones, null, 2)}
+  
+Genera tu respuesta usando el formato definido.  
+`;
 
   try {
     const result = await chatSession.sendMessage(prompt);
