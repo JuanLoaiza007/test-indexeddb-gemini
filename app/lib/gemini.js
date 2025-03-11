@@ -20,6 +20,23 @@ const generationConfig = {
 };
 
 export async function request_gemini(transacciones) {
+  const now = Date.now();
+  const limiteSolicitudes = 2;
+  const ventanaTiempo = 60 * 1000; // 1 minuto
+
+  const historial = JSON.parse(localStorage.getItem("ia_request_log")) || [];
+
+  const recientes = historial.filter(
+    (timestamp) => now - timestamp < ventanaTiempo
+  );
+
+  if (recientes.length >= limiteSolicitudes) {
+    return `Has alcanzado el límite de ${limiteSolicitudes} solicitudes por minuto. Inténtalo más tarde.`;
+  }
+
+  recientes.push(now);
+  localStorage.setItem("ia_request_log", JSON.stringify(recientes));
+
   const prompt = `
     Eres un analista financiero especializado en el análisis de ingresos y gastos personales. 
     Tu tarea es revisar la lista de transacciones proporcionada y ofrecer recomendaciones 
@@ -27,14 +44,13 @@ export async function request_gemini(transacciones) {
 
     Reglas de tu respuesta:
     - Analiza patrones de gasto y ahorro.
-    - No te centres en optimizar los gastos "escenciales", intenta optimizar los "opcionales".
     - Sugiere formas de optimizar los ingresos y reducir gastos innecesarios.
     - No hagas suposiciones fuera de los datos dados.
     - Responde en un solo párrafo con consejos concisos y aplicables.
 
     Aquí está la lista de transacciones:
     ${JSON.stringify(transacciones, null, 2)}
-    `;
+  `;
 
   const chatSession = model.startChat({
     generationConfig,
