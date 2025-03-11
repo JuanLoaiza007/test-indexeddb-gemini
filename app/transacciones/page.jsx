@@ -92,112 +92,129 @@ export default function TransaccionesPage() {
   }
 
   return (
-    <div className="p-6 max-w-xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Gestión de Transacciones</h1>
-      <form onSubmit={manejarEnvio} className="bg-gray-100 p-4 rounded-lg mb-4">
-        <input
-          type="text"
-          name="descripcion"
-          placeholder="Descripción"
-          value={form.descripcion}
-          onChange={manejarCambio}
-          className="w-full p-2 mb-2 border rounded"
-        />
-        <input
-          type="number"
-          name="monto"
-          placeholder="Monto"
-          value={form.monto}
-          onChange={manejarCambio}
-          className="w-full p-2 mb-2 border rounded"
-        />
-        <input
-          type="text"
-          name="categoria"
-          placeholder="Categoría"
-          value={form.categoria}
-          onChange={manejarCambio}
-          className="w-full p-2 mb-2 border rounded"
-        />
-        <select
-          name="tipo"
-          value={form.tipo}
-          onChange={manejarCambio}
-          className="w-full p-2 mb-2 border rounded"
+    <div className="p-6 max-w-6xl mx-auto">
+      <h1 className="text-2xl font-bold mb-4 text-center">
+        Gestión de Transacciones
+      </h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Sección del formulario */}
+        <form
+          onSubmit={manejarEnvio}
+          className="bg-gray-100 p-4 rounded-lg shadow-lg"
         >
-          <option value="Ingreso">Ingreso</option>
-          <option value="Gasto">Gasto</option>
-        </select>
-        {form.tipo === "Gasto" && (
+          <h2 className="text-lg font-semibold mb-2">Nueva Transacción</h2>
+          <input
+            type="text"
+            name="descripcion"
+            placeholder="Descripción"
+            value={form.descripcion}
+            onChange={manejarCambio}
+            className="w-full p-2 mb-2 border rounded"
+          />
+          <input
+            type="number"
+            name="monto"
+            placeholder="Monto"
+            value={form.monto}
+            onChange={manejarCambio}
+            className="w-full p-2 mb-2 border rounded"
+          />
+          <input
+            type="text"
+            name="categoria"
+            placeholder="Categoría"
+            value={form.categoria}
+            onChange={manejarCambio}
+            className="w-full p-2 mb-2 border rounded"
+          />
           <select
-            name="clasificacion"
-            value={form.clasificacion}
+            name="tipo"
+            value={form.tipo}
             onChange={manejarCambio}
             className="w-full p-2 mb-2 border rounded"
           >
-            <option value="">Seleccionar clasificación</option>
-            <option value="esencial">Esencial</option>
-            <option value="opcional">Opcional</option>
+            <option value="Ingreso">Ingreso</option>
+            <option value="Gasto">Gasto</option>
           </select>
-        )}
-        <input
-          type="datetime-local"
-          name="fecha"
-          value={form.fecha}
-          onChange={manejarCambio}
-          className="w-full p-2 mb-2 border rounded"
-        />
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded"
-        >
-          {form.id ? "Actualizar" : "Agregar"}
-        </button>
-      </form>
-
-      <ul className="space-y-2">
-        {transacciones.length === 0 ? (
-          <p className="text-gray-500 text-center">
-            No hay transacciones registradas.
-          </p>
-        ) : (
-          transacciones.map((t) => (
-            <li
-              key={t.id}
-              className="flex justify-between items-center p-2 bg-white rounded shadow"
+          {form.tipo === "Gasto" && (
+            <select
+              name="clasificacion"
+              value={form.clasificacion}
+              onChange={manejarCambio}
+              className="w-full p-2 mb-2 border rounded"
             >
-              <div>
-                <p className="font-semibold">
-                  {t.descripcion} - ${t.monto}
-                </p>
-                <p className="text-sm text-gray-500">
-                  {t.tipo} - {t.categoria}{" "}
-                  {t.clasificacion ? `(${t.clasificacion})` : ""}
-                </p>
-              </div>
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => manejarEditar(t.id)}
-                  className="bg-yellow-400 text-white px-2 py-1 rounded"
-                >
-                  ✏️
-                </button>
-                <button
-                  onClick={() => manejarEliminar(t.id)}
-                  className="bg-red-500 text-white px-2 py-1 rounded"
-                >
-                  🗑️
-                </button>
-              </div>
-            </li>
-          ))
-        )}
-      </ul>
+              <option value="">Seleccionar clasificación</option>
+              <option value="esencial">Esencial</option>
+              <option value="opcional">Opcional</option>
+            </select>
+          )}
+          <input
+            type="datetime-local"
+            name="fecha"
+            value={form.fecha}
+            onChange={manejarCambio}
+            className="w-full p-2 mb-2 border rounded"
+          />
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition"
+          >
+            {form.id ? "Actualizar" : "Agregar"}
+          </button>
+        </form>
 
-      <div className="mt-6">
+        {/* Sección de lista de transacciones */}
+        <div className="bg-white p-4 rounded-lg shadow-lg">
+          <h2 className="text-lg font-semibold mb-2">
+            Historial de Transacciones
+          </h2>
+          {transacciones.length === 0 ? (
+            <p className="text-gray-500 text-center">
+              No hay transacciones registradas.
+            </p>
+          ) : (
+            <ul className="space-y-2">
+              {transacciones.map((t) => (
+                <li
+                  key={t.id}
+                  className="flex justify-between items-center p-2 bg-gray-100 rounded shadow"
+                >
+                  <div>
+                    <p className="font-semibold">
+                      {t.descripcion} - ${t.monto}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {t.tipo} - {t.categoria}{" "}
+                      {t.clasificacion ? `(${t.clasificacion})` : ""}
+                    </p>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => manejarEditar(t.id)}
+                      className="bg-yellow-400 text-white px-2 py-1 rounded hover:bg-yellow-500 transition"
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      onClick={() => manejarEliminar(t.id)}
+                      className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+
+      {/* Sección de IA */}
+      <div className="mt-6 bg-gray-100 p-4 rounded-lg shadow-lg text-center">
         <button
           onClick={obtenerSugerenciaIA}
-          className="w-full bg-green-500 text-white p-2 rounded"
+          className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600 transition"
         >
           Obtener sugerencia IA
         </button>
@@ -207,7 +224,7 @@ export default function TransaccionesPage() {
           </p>
         )}
         {sugerenciaIA && (
-          <p className="mt-4 p-4 bg-gray-100 border rounded">{sugerenciaIA}</p>
+          <p className="mt-4 p-4 bg-white border rounded">{sugerenciaIA}</p>
         )}
       </div>
     </div>
