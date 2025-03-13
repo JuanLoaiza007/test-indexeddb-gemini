@@ -1,262 +1,121 @@
 "use client";
 import { useState, useEffect } from "react";
+import { FiPlus } from "react-icons/fi";
 import {
-  obtenerTransacciones,
-  agregarTransaccion,
-  actualizarTransaccion,
-  eliminarTransaccion,
+  getTransactions,
+  addTransaction,
+  updateTransaction,
+  deleteTransaction,
 } from "@/app/lib/indexedDB";
-import { request_gemini } from "@/app/lib/gemini";
-import Markdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { motion } from "framer-motion";
+import IASuggestion from "@/app/transacciones/_components/IASuggestion";
+import TransactionHistory from "@/app/transacciones/_components/TransactionHistory";
+import TransactionForm from "@/app/transacciones/_components/TransactionForm";
+import CustomModal from "@/app/_components/CustomModal";
 
-export default function TransaccionesPage() {
-  const [transacciones, setTransacciones] = useState([]);
-  const [form, setForm] = useState({
-    id: "",
-    tipo: "Ingreso",
-    clasificacion: "",
-    descripcion: "",
-    categoria: "",
-    monto: "",
-    fecha: "",
-  });
-  const [sugerenciaIA, setSugerenciaIA] = useState("");
-  const [cargandoIA, setCargandoIA] = useState(false);
+export default function TransactionsPage() {
+  const [transactions, setTransactions] = useState([]);
+  const [form, setForm] = useState(getInitialFormState());
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    cargarTransacciones();
+    loadTransactions();
   }, []);
 
-  async function cargarTransacciones() {
-    const data = await obtenerTransacciones();
+  async function loadTransactions() {
+    const data = await getTransactions();
     console.log("📂 Transacciones obtenidas:", data);
-    setTransacciones(data);
+    setTransactions(data);
   }
 
-  async function manejarEnvio(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    if (form.tipo === "Gasto" && !form.clasificacion) {
+    if (form.type === "Gasto" && !form.classification) {
       alert("Debes seleccionar una clasificación");
       return;
     }
 
     if (form.id) {
       console.log("🔄 Actualizando transacción:", form);
-      await actualizarTransaccion(form);
+      await updateTransaction(form);
     } else {
-      const nuevaTransaccion = { ...form, id: Date.now() };
-      console.log("➕ Agregando transacción:", nuevaTransaccion);
-      await agregarTransaccion(nuevaTransaccion);
+      const newTransaction = { ...form, id: Date.now() };
+      console.log("➕ Agregando transacción:", newTransaction);
+      await addTransaction(newTransaction);
     }
 
-    setForm({
-      id: "",
-      tipo: "Ingreso",
-      clasificacion: "",
-      descripcion: "",
-      categoria: "",
-      monto: "",
-      fecha: "",
-    });
-
-    await cargarTransacciones();
+    setForm(getInitialFormState());
+    await loadTransactions();
+    setIsModalOpen(false);
   }
 
-  async function manejarEliminar(id) {
+  async function handleDelete(id) {
     console.log(`🗑️ Eliminando transacción con ID: ${id}`);
-    await eliminarTransaccion(id);
-    setTransacciones(transacciones.filter((t) => t.id !== id));
+    await deleteTransaction(id);
+    setTransactions(transactions.filter((t) => t.id !== id));
   }
 
-  async function manejarEditar(id) {
-    const transaccion = transacciones.find((t) => t.id === id);
-    console.log("✏️ Editando transacción:", transaccion);
-    setForm(transaccion);
+  async function handleEdit(id) {
+    const transaction = transactions.find((t) => t.id === id);
+    console.log("✏️ Editando transacción:", transaction);
+    setForm(transaction);
+    setIsModalOpen(true);
   }
 
-  async function obtenerSugerenciaIA() {
-    if (transacciones.length === 0) {
-      alert("No hay transacciones para analizar.");
-      return;
-    }
-
-    setCargandoIA(true);
-    setSugerenciaIA("");
-
-    const respuesta = await request_gemini(transacciones);
-    setSugerenciaIA(respuesta);
-    setCargandoIA(false);
+  function handleCloseModal() {
+    setForm(getInitialFormState()); // Restablece el formulario al cerrar el modal
+    setIsModalOpen(false);
   }
 
-  function manejarCambio(e) {
+  function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-6 relative h-full">
       <h1 className="text-2xl font-bold mb-4 text-center">
         Gestión de Transacciones
       </h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Sección del formulario */}
-        <form
-          onSubmit={manejarEnvio}
-          className="bg-gray-100 p-4 rounded-lg shadow-lg"
-        >
-          <h2 className="text-lg font-semibold mb-2">Nueva Transacción</h2>
-          <input
-            type="text"
-            name="descripcion"
-            placeholder="Descripción"
-            value={form.descripcion}
-            onChange={manejarCambio}
-            className="w-full p-2 mb-2 border rounded"
-          />
-          <input
-            type="number"
-            name="monto"
-            placeholder="Monto"
-            value={form.monto}
-            onChange={manejarCambio}
-            className="w-full p-2 mb-2 border rounded"
-          />
-          <input
-            type="text"
-            name="categoria"
-            placeholder="Categoría"
-            value={form.categoria}
-            onChange={manejarCambio}
-            className="w-full p-2 mb-2 border rounded"
-          />
-          <select
-            name="tipo"
-            value={form.tipo}
-            onChange={manejarCambio}
-            className="w-full p-2 mb-2 border rounded"
-          >
-            <option value="Ingreso">Ingreso</option>
-            <option value="Gasto">Gasto</option>
-          </select>
-          {form.tipo === "Gasto" && (
-            <select
-              name="clasificacion"
-              value={form.clasificacion}
-              onChange={manejarCambio}
-              className="w-full p-2 mb-2 border rounded"
-            >
-              <option value="">Seleccionar clasificación</option>
-              <option value="esencial">Esencial</option>
-              <option value="opcional">Opcional</option>
-            </select>
-          )}
-          <input
-            type="datetime-local"
-            name="fecha"
-            value={form.fecha}
-            onChange={manejarCambio}
-            className="w-full p-2 mb-2 border rounded"
-          />
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition"
-          >
-            {form.id ? "Actualizar" : "Agregar"}
-          </button>
-        </form>
-
-        {/* Sección de lista de transacciones */}
-        <div className="bg-white p-4 rounded-lg shadow-lg">
-          <h2 className="text-lg font-semibold mb-2">
-            Historial de Transacciones
-          </h2>
-          {transacciones.length === 0 ? (
-            <p className="text-gray-500 text-center">
-              No hay transacciones registradas.
-            </p>
-          ) : (
-            <ul className="space-y-2">
-              {transacciones.map((t) => (
-                <li
-                  key={t.id}
-                  className="flex justify-between items-center p-2 bg-gray-100 rounded shadow"
-                >
-                  <div>
-                    <p className="font-semibold">
-                      {t.descripcion} - ${t.monto}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {t.tipo} - {t.categoria}{" "}
-                      {t.clasificacion ? `(${t.clasificacion})` : ""}
-                    </p>
-                  </div>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => manejarEditar(t.id)}
-                      className="bg-yellow-400 text-white px-2 py-1 rounded hover:bg-yellow-500 transition"
-                    >
-                      ✏️
-                    </button>
-                    <button
-                      onClick={() => manejarEliminar(t.id)}
-                      className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
-                    >
-                      🗑️
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+      <div className="">
+        <TransactionHistory
+          transactions={transactions}
+          handleEdit={handleEdit}
+          handleDelete={handleDelete}
+        />
       </div>
 
-      {/* Sección de IA */}
-      <div className="flex flex-col xl:flex-row mt-6 p-6 gap-4 rounded-lg shadow-lg bg-gradient-to-r from-blue-500 via-purple-600 to-indigo-700 relative min-h-18">
-        {/* Contenedor de la respuesta */}
-        <div className="flex flex-1 items-start gap-3">
-          {/* Respuesta de la IA con Animación */}
-          <motion.div
-            initial={{ height: "3rem", opacity: 1 }}
-            animate={{ height: "auto", opacity: 1 }}
-            transition={{ duration: 0.4, ease: "easeInOut" }}
-            className="flex items-center gap-2 min-h-[3rem]"
-          >
-            {/* Icono de IA */}
-            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md text-xl">
-              🤖
-            </div>
-
-            {/* Contenedor de respuesta o carga */}
-            <div className="w-full bg-white p-4 rounded-2xl shadow-lg text-gray-800 text-left min-h-[3rem] flex flex-col items-center">
-              {cargandoIA ? (
-                <p className="text-black text-center animate-pulse">
-                  Obteniendo sugerencias...
-                </p>
-              ) : sugerenciaIA ? (
-                <Markdown remarkPlugins={[remarkGfm]}>{sugerenciaIA}</Markdown>
-              ) : (
-                <p className="text-black italic">
-                  Haz clic en el botón para obtener una sugerencia
-                </p>
-              )}
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Botón en la esquina superior derecha */}
-        <button
-          onClick={() => {
-            setSugerenciaIA("");
-            obtenerSugerenciaIA();
-          }}
-          className="bg-white text-indigo-600 font-semibold py-2 px-3 rounded-full shadow-md hover:bg-indigo-100 transition duration-300 text-sm h-8"
-        >
-          🔮 Obtener Sugerencia
-        </button>
+      {/* Posiciona la burbuja de IA en la esquina inferior izquierda */}
+      <div className="absolute bottom-6 left-6">
+        <IASuggestion transactions={transactions} />
       </div>
+
+      {/* Botón flotante para agregar transacciones */}
+      <button
+        onClick={() => setIsModalOpen(true)}
+        className="fixed bottom-6 right-6 bg-green-700 text-white p-4 rounded-full shadow-lg hover:bg-green-800 transition"
+      >
+        <FiPlus size={24} />
+      </button>
+
+      <CustomModal isOpen={isModalOpen} onClose={handleCloseModal}>
+        <TransactionForm
+          form={form}
+          handleChange={handleChange}
+          handleSubmit={handleSubmit}
+        />
+      </CustomModal>
     </div>
   );
+}
+
+function getInitialFormState() {
+  return {
+    id: "",
+    type: "Ingreso",
+    classification: "",
+    description: "",
+    category: "",
+    amount: "",
+    date: "",
+  };
 }

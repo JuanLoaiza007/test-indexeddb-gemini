@@ -1,4 +1,3 @@
-// app/lib/indexedDB.js
 export async function openDB() {
   return new Promise((resolve, reject) => {
     console.log("🔹 Abriendo IndexedDB...");
@@ -6,8 +5,8 @@ export async function openDB() {
     request.onupgradeneeded = (event) => {
       console.log("🛠️ Creando almacén de transacciones...");
       const db = event.target.result;
-      if (!db.objectStoreNames.contains("transacciones")) {
-        db.createObjectStore("transacciones", { keyPath: "id" });
+      if (!db.objectStoreNames.contains("transactions")) {
+        db.createObjectStore("transactions", { keyPath: "id" });
       }
     };
     request.onsuccess = () => {
@@ -21,10 +20,10 @@ export async function openDB() {
   });
 }
 
-export async function obtenerTransacciones() {
+export async function getTransactions() {
   const db = await openDB();
-  const tx = db.transaction("transacciones", "readonly");
-  const store = tx.objectStore("transacciones");
+  const tx = db.transaction("transactions", "readonly");
+  const store = tx.objectStore("transactions");
   return new Promise((resolve, reject) => {
     const request = store.getAll();
     request.onsuccess = () => {
@@ -38,14 +37,14 @@ export async function obtenerTransacciones() {
   });
 }
 
-export async function agregarTransaccion(transaccion) {
+export async function addTransaction(transaction) {
   const db = await openDB();
-  const tx = db.transaction("transacciones", "readwrite");
-  const store = tx.objectStore("transacciones");
+  const tx = db.transaction("transactions", "readwrite");
+  const store = tx.objectStore("transactions");
   return new Promise((resolve, reject) => {
-    const request = store.add(transaccion);
+    const request = store.add(transaction);
     request.onsuccess = () => {
-      console.log("✅ Transacción agregada:", transaccion);
+      console.log("✅ Transacción agregada:", transaction);
       resolve(true);
     };
     request.onerror = () => {
@@ -55,14 +54,14 @@ export async function agregarTransaccion(transaccion) {
   });
 }
 
-export async function actualizarTransaccion(transaccion) {
+export async function updateTransaction(transaction) {
   const db = await openDB();
-  const tx = db.transaction("transacciones", "readwrite");
-  const store = tx.objectStore("transacciones");
+  const tx = db.transaction("transactions", "readwrite");
+  const store = tx.objectStore("transactions");
   return new Promise((resolve, reject) => {
-    const request = store.put(transaccion);
+    const request = store.put(transaction);
     request.onsuccess = () => {
-      console.log("🔄 Transacción actualizada:", transaccion);
+      console.log("🔄 Transacción actualizada:", transaction);
       resolve(true);
     };
     request.onerror = () => {
@@ -72,10 +71,10 @@ export async function actualizarTransaccion(transaccion) {
   });
 }
 
-export async function eliminarTransaccion(id) {
+export async function deleteTransaction(id) {
   const db = await openDB();
-  const tx = db.transaction("transacciones", "readwrite");
-  const store = tx.objectStore("transacciones");
+  const tx = db.transaction("transactions", "readwrite");
+  const store = tx.objectStore("transactions");
   return new Promise((resolve, reject) => {
     const request = store.delete(id);
     request.onsuccess = () => {
