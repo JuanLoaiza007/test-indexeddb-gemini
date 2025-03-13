@@ -15,14 +15,14 @@ export default function Sidebar() {
 
   return (
     <div
-      className={`bg-green-700 h-screen p-4 relative transition-all duration-300 select-none ${
+      className={`bg-green-700 h-screen p-4 relative transition-all duration-300 select-none z-50  ${
         expanded ? "w-64" : "w-20"
       }`}
     >
       {/* Botón de expandir/contraer */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="absolute top-4 right-0 translate-x-1/2 bg-white p-2 rounded-full shadow-md z-50"
+        className="absolute top-4 right-0 translate-x-1/2 bg-white p-2 rounded-full shadow-md z-50 cursor-pointer"
       >
         {expanded ? <FiChevronLeft size={20} /> : <FiChevronRight size={20} />}
       </button>
