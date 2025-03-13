@@ -6,8 +6,10 @@ export default function TransactionHistory({
   handleDelete,
 }) {
   return (
-    <div className="bg-white p-4 rounded-lg shadow-lg">
-      <h2 className="text-lg font-semibold mb-2">Historial de Transacciones</h2>
+    <div className="p-4 rounded-lg">
+      <h2 className="text-lg font-semibold mb-2 text-center items-center">
+        Historial de Transacciones
+      </h2>
       {transactions.length === 0 ? (
         <p className="text-gray-500 text-center">
           No hay transacciones registradas.
@@ -17,7 +19,7 @@ export default function TransactionHistory({
           {transactions.map((t) => (
             <li
               key={t.id}
-              className="flex justify-between items-center p-2 bg-gray-100 rounded shadow"
+              className="flex justify-between items-center p-2 bg-gray-200 rounded-lg px-8 py-4 shadow"
             >
               <div>
                 <p className="font-semibold">
