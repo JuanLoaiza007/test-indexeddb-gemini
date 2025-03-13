@@ -17,6 +17,13 @@ export default function TransactionHistory({
   const [sortField, setSortField] = useState("date");
   const [sortOrder, setSortOrder] = useState("desc");
 
+  const getBorderColor = (transaction) => {
+    if (transaction.type === "Ingreso") return "border-green-500";
+    if (transaction.classification === "esencial") return "border-yellow-500";
+    if (transaction.classification === "opcional") return "border-red-500";
+    return "border-gray-300";
+  };
+
   const filteredTransactions = useMemo(() => {
     const now = new Date();
     return transactions.filter((t) => {
@@ -111,12 +118,14 @@ export default function TransactionHistory({
           {sortedTransactions.map((t) => (
             <li
               key={t.id}
-              className="flex justify-between items-center p-4 bg-white rounded-lg shadow border-l-4 border-green-500"
+              className={`flex justify-between items-center p-4 bg-white rounded-lg shadow border-l-4 ${getBorderColor(
+                t
+              )}`}
             >
               <div className="flex flex-col">
                 <p className="font-semibold text-lg">
                   {t.description} -{" "}
-                  <span className="text-green-600 font-bold">${t.amount}</span>
+                  <span className="font-bold">${t.amount}</span>
                 </p>
                 <p className="text-sm text-gray-500">
                   {t.type} - {t.category}{" "}
