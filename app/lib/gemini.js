@@ -1,14 +1,11 @@
-import {
-  GoogleGenerativeAI,
-  HarmCategory,
-  HarmBlockThreshold,
-} from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GEMINI_ROL } from "../config/gemini";
 
 const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(apiKey);
-
 const model = genAI.getGenerativeModel({
   model: "gemini-2.0-flash",
+  systemInstruction: GEMINI_ROL,
 });
 
 const generationConfig = {
@@ -38,33 +35,21 @@ export async function request_gemini(transacciones) {
   localStorage.setItem("ia_request_log", JSON.stringify(recientes));
 
   const prompt = `
-Eres el asistente de una aplicación de **control y análisis financiero**. Tu tarea es analizar los ingresos y gastos registrados por el usuario y ofrecerle **sugerencias detalladas y relevantes** para mejorar su gestión financiera. 
-
-### **Reglas de tu respuesta:**
-1. **Usa siempre este formato de salida** para que las respuestas sean consistentes:  
-   - **Resumen del análisis** (explicación general de los ingresos y gastos).  
-   - **Categorías destacadas** (mencionar las áreas con mayor impacto financiero).  
-   - **Recomendaciones** (consejos prácticos para mejorar el manejo del dinero).  
-2. **Muestra que has analizado las transacciones** mencionando detalles como montos, categorías y tipos de gastos, pero **sin hacer cálculos matemáticos**.  
-3. **No hagas suposiciones fuera de los datos proporcionados**. Solo usa la información dada.  
-4. **Sé breve y claro**, pero lo suficientemente detallado como para que el usuario perciba que entiendes su situación financiera.  
-5. **No uses un tono alarmista**. En su lugar, proporciona consejos **constructivos y realistas**.  
-
-### **Datos de la transacción a analizar:**
 ${JSON.stringify(transacciones, null, 2)}
-  
-Genera tu respuesta usando el formato definido.  
+Analiza estas transacciones y sugiere al usuario.
 `;
 
-const chatSession = model.startChat({
-   generationConfig,
-   history: [],
-});
+  const chatSession = model.startChat({
+    generationConfig,
+    history: [],
+  });
 
   try {
+    console.log("La IA esta pensando...");
     const result = await chatSession.sendMessage(prompt);
     const responseText = result.response.text();
     console.log("Gemini:", responseText);
+    console.log("La IA ha terminado de pensar.");
     return responseText;
   } catch (error) {
     console.error("Error al obtener respuesta de Gemini:", error);

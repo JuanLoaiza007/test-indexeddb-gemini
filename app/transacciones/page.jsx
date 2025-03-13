@@ -7,6 +7,8 @@ import {
   eliminarTransaccion,
 } from "@/app/lib/indexedDB";
 import { request_gemini } from "@/app/lib/gemini";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function TransaccionesPage() {
   const [transacciones, setTransacciones] = useState([]);
@@ -224,7 +226,9 @@ export default function TransaccionesPage() {
           </p>
         )}
         {sugerenciaIA && (
-          <p className="mt-4 p-4 bg-white border rounded">{sugerenciaIA}</p>
+          <div className="mt-4 p-4 bg-white border rounded justify-start items-start text-left">
+            <Markdown remarkPlugins={[remarkGfm]}>{sugerenciaIA}</Markdown>
+          </div>
         )}
       </div>
     </div>
