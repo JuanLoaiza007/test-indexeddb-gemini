@@ -15,7 +15,7 @@ export default function Sidebar() {
 
   return (
     <div
-      className={`bg-green-700 h-screen p-4 relative transition-all duration-300 select-none z-50  ${
+      className={`bg-green-700 h-screen p-4 relative transition-all duration-300 select-none z-50 flex flex-col ${
         expanded ? "w-64" : "w-20"
       }`}
     >
@@ -28,10 +28,10 @@ export default function Sidebar() {
       </button>
 
       {/* Logo o título de la aplicación */}
-      <div className="flex items-center justify-center mt-6 mb-6">
+      <div className="flex items-center justify-center mt-6 mb-6 h-10">
         <span
-          className={`text-white font-bold text-lg transition-all ${
-            expanded ? "text-xl opacity-100" : "text-sm opacity-0"
+          className={`text-white font-bold transition-all duration-300 ${
+            expanded ? "text-xl opacity-100" : "opacity-0"
           }`}
         >
           Fintrack
@@ -39,7 +39,7 @@ export default function Sidebar() {
       </div>
 
       {/* Navegación */}
-      <nav className="space-y-4">
+      <nav className="flex flex-col gap-2 flex-grow">
         <NavItem
           href="/transacciones"
           icon={<FiTrendingUp size={24} />}
@@ -72,9 +72,15 @@ export default function Sidebar() {
 const NavItem = ({ href, icon, text, expanded }) => (
   <Link
     href={href}
-    className="flex items-center space-x-3 text-white hover:bg-green-600 p-2 rounded-lg transition"
+    className="flex items-center h-12 px-3 text-white hover:bg-green-600 rounded-lg transition-all duration-300"
   >
-    {icon}
-    {expanded && <span className="text-lg font-medium">{text}</span>}
+    <div className="w-6 flex items-center justify-center">{icon}</div>
+    <span
+      className={`ml-3 transition-all duration-300 whitespace-nowrap ${
+        expanded ? "opacity-100 visible w-auto" : "opacity-0 invisible w-0"
+      }`}
+    >
+      {text}
+    </span>
   </Link>
 );
