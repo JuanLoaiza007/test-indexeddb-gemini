@@ -9,6 +9,7 @@ import {
 import { request_gemini } from "@/app/lib/gemini";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { motion } from "framer-motion";
 
 export default function TransaccionesPage() {
   const [transacciones, setTransacciones] = useState([]);
@@ -213,23 +214,48 @@ export default function TransaccionesPage() {
       </div>
 
       {/* Sección de IA */}
-      <div className="mt-6 bg-gray-100 p-4 rounded-lg shadow-lg text-center">
+      <div className="flex flex-col xl:flex-row mt-6 p-6 gap-4 rounded-lg shadow-lg bg-gradient-to-r from-blue-500 via-purple-600 to-indigo-700 relative min-h-18">
+        {/* Contenedor de la respuesta */}
+        <div className="flex flex-1 items-start gap-3">
+          {/* Respuesta de la IA con Animación */}
+          <motion.div
+            initial={{ height: "3rem", opacity: 1 }}
+            animate={{ height: "auto", opacity: 1 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            className="flex items-center gap-2 min-h-[3rem]"
+          >
+            {/* Icono de IA */}
+            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md text-xl">
+              🤖
+            </div>
+
+            {/* Contenedor de respuesta o carga */}
+            <div className="w-full bg-white p-4 rounded-2xl shadow-lg text-gray-800 text-left min-h-[3rem] flex flex-col items-center">
+              {cargandoIA ? (
+                <p className="text-black text-center animate-pulse">
+                  Obteniendo sugerencias...
+                </p>
+              ) : sugerenciaIA ? (
+                <Markdown remarkPlugins={[remarkGfm]}>{sugerenciaIA}</Markdown>
+              ) : (
+                <p className="text-black italic">
+                  Haz clic en el botón para obtener una sugerencia
+                </p>
+              )}
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Botón en la esquina superior derecha */}
         <button
-          onClick={obtenerSugerenciaIA}
-          className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600 transition"
+          onClick={() => {
+            setSugerenciaIA("");
+            obtenerSugerenciaIA();
+          }}
+          className="bg-white text-indigo-600 font-semibold py-2 px-3 rounded-full shadow-md hover:bg-indigo-100 transition duration-300 text-sm h-8"
         >
-          Obtener sugerencia IA
+          🔮 Obtener Sugerencia
         </button>
-        {cargandoIA && (
-          <p className="text-gray-500 text-center mt-2 animate-pulse">
-            Obteniendo sugerencias...
-          </p>
-        )}
-        {sugerenciaIA && (
-          <div className="mt-4 p-4 bg-white border rounded justify-start items-start text-left">
-            <Markdown remarkPlugins={[remarkGfm]}>{sugerenciaIA}</Markdown>
-          </div>
-        )}
       </div>
     </div>
   );

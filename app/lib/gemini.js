@@ -18,7 +18,7 @@ const generationConfig = {
 
 export async function request_gemini(transacciones) {
   const now = Date.now();
-  const limiteSolicitudes = 2;
+  const limiteSolicitudes = 10;
   const ventanaTiempo = 60 * 1000; // 1 minuto
 
   const historial = JSON.parse(localStorage.getItem("ia_request_log")) || [];
